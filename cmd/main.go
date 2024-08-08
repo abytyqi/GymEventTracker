@@ -13,5 +13,6 @@ func main() {
 	routes.SetupRoutes(r)
 
 	// Start the server
+	//comment 1
 	r.Run(":3000")
 }
