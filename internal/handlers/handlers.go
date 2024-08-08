@@ -3,37 +3,49 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
-func Home(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Welcome to GymEventTracker!",
+// Home handler function to display a welcome message
+func Home(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Welcome to GymEventTracker Alban!",
 	})
 }
 
-func ListEvents(c *gin.Context) {
-	// This will list all events
+// ListEvents handler function to list all events
+func ListEvents(c echo.Context) error {
 	events := []string{"Yoga Class", "Crossfit Session", "Zumba Dance"}
-	c.JSON(http.StatusOK, gin.H{
+	return c.JSON(http.StatusOK, map[string][]string{
 		"events": events,
 	})
 }
 
-func CreateEvent(c *gin.Context) {
-	// This will create a new event
+// CreateEvent handler function to create a new event
+func CreateEvent(c echo.Context) error {
+	// Define the Event struct to hold the event data
 	type Event struct {
-		Name string `json:"name"`
-		Time string `json:"time"`
+		Name string `json:"name" validate:"required"`
+		Time string `json:"time" validate:"required"`
 	}
 
 	var newEvent Event
-	if err := c.ShouldBindJSON(&newEvent); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+
+	// Bind and validate the incoming JSON request
+	if err := c.Bind(&newEvent); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid input data",
+		})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
+	if newEvent.Name == "" || newEvent.Time == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Name and time are required",
+		})
+	}
+
+	// Return a success response with the created event
+	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Event created successfully",
 		"event":   newEvent,
 	})

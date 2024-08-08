@@ -3,15 +3,16 @@ package main
 import (
 	"GymEventTracker/internal/routes"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	r := gin.Default()
+	// Create a new Echo instance
+	e := echo.New()
 
 	// Setup routes
-	routes.SetupRoutes(r)
+	routes.SetupRoutes(e)
 
-	// Start the server
-	r.Run(":3000")
+	// Start the server on port 8080
+	e.Logger.Fatal(e.Start(":3000"))
 }
