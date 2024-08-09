@@ -6,7 +6,10 @@ import (
 	"GymEventTracker/internal/features/members"
 	"html/template"
 	"io"
+	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,15 +22,29 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	dbPath := os.Getenv("DB_PATH")
+	serverPort := os.Getenv("SERVER_PORT")
+
 	// Initialize the SQLite database
-	database.InitDB("gym_event_tracker.db")
+	database.InitDB(dbPath)
 	defer database.CloseDB()
 
 	// Create a new Echo instance
 	e := echo.New()
+	parsedTemplates, err := template.ParseFiles("../internal/features/members/templates/index.html")
+
+	if err != nil {
+		log.Fatalf("Error parsing templates")
+	}
 
 	t := &Template{
-		templates: template.Must(template.ParseFiles("/Users/albans.bytyci/go/src/gymeventtracker/internal/features/members/templates/index.html")),
+		templates: parsedTemplates,
 	}
 
 	e.Renderer = t
@@ -35,5 +52,5 @@ func main() {
 	members.SetupRoutes(e)
 	attendance.SetupRoutes(e)
 
-	e.Logger.Fatal(e.Start(":3000"))
+	e.Logger.Fatal(e.Start(serverPort))
 }
