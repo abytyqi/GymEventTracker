@@ -2,13 +2,20 @@ package main
 
 import (
 	"GymEventTracker/internal/database"
-	"GymEventTracker/internal/routes"
-	"os"
-	"os/signal"
-	"syscall"
-
+	"GymEventTracker/internal/features/attendance"
+	"GymEventTracker/internal/features/members"
 	"github.com/labstack/echo/v4"
+	"html/template"
+	"io"
 )
+
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
 
 func main() {
 	// Initialize the SQLite database
@@ -18,21 +25,14 @@ func main() {
 	// Create a new Echo instance
 	e := echo.New()
 
-	// Setup routes
-	routes.SetupRoutes(e)
-
-	// Graceful shutdown
-	go func() {
-		if err := e.Start(":3000"); err != nil {
-			e.Logger.Info("Shutting down the server...")
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit
-
-	if err := e.Shutdown(nil); err != nil {
-		e.Logger.Fatal(err)
+	t := &Template{
+		templates: template.Must(template.ParseFiles("/Users/fitims/dev/GymEventTracker/internal/features/members/templates/index.html")),
 	}
+
+	e.Renderer = t
+	// Setup routes
+	members.SetupRoutes(e)
+	attendance.SetupRoutes(e)
+
+	e.Logger.Fatal(e.Start(":3000"))
 }
