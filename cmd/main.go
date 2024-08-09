@@ -25,6 +25,11 @@ func main() {
 	// Create a new Echo instance
 	e := echo.New()
 
+
+	// Setup routes
+	events.SetupRoutes(e)
+	members.RegisterRoutes(e)
+
 	t := &Template{
 		templates: template.Must(template.ParseFiles("/Users/fitims/dev/GymEventTracker/internal/features/members/templates/index.html")),
 	}
