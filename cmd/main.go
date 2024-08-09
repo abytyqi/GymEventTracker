@@ -4,9 +4,10 @@ import (
 	"GymEventTracker/internal/database"
 	"GymEventTracker/internal/features/attendance"
 	"GymEventTracker/internal/features/members"
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Template struct {
@@ -25,13 +26,8 @@ func main() {
 	// Create a new Echo instance
 	e := echo.New()
 
-
-	// Setup routes
-	events.SetupRoutes(e)
-	members.RegisterRoutes(e)
-
 	t := &Template{
-		templates: template.Must(template.ParseFiles("/Users/fitims/dev/GymEventTracker/internal/features/members/templates/index.html")),
+		templates: template.Must(template.ParseFiles("/Users/albans.bytyci/go/src/gymeventtracker/internal/features/members/templates/index.html")),
 	}
 
 	e.Renderer = t
