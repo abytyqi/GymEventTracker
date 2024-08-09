@@ -1,0 +1,7 @@
+
+// The request body is provided in place
+POST http://localhost:3000/members
+Content-Type: application/json
+
+
+{ "name" : "fitim", "email": "fitims@gmail.com", "age" : 50 }
