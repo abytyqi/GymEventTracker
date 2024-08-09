@@ -1,4 +1,4 @@
-package handlers
+package events
 
 import (
 	"net/http"
@@ -6,23 +6,23 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Home handler function to display a welcome message
-func Home(c echo.Context) error {
+// home handler function to display a welcome message
+func home(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Welcome to GymEventTracker Alban!",
 	})
 }
 
-// ListEvents handler function to list all events
-func ListEvents(c echo.Context) error {
+// listEvents handler function to list all events
+func listEvents(c echo.Context) error {
 	events := []string{"Yoga Class", "Crossfit Session", "Zumba Dance"}
 	return c.JSON(http.StatusOK, map[string][]string{
 		"events": events,
 	})
 }
 
-// CreateEvent handler function to create a new event
-func CreateEvent(c echo.Context) error {
+// createEvent handler function to create a new event
+func createEvent(c echo.Context) error {
 	// Define the Event struct to hold the event data
 	type Event struct {
 		Name string `json:"name" validate:"required"`

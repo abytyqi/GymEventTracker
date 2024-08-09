@@ -2,11 +2,8 @@ package main
 
 import (
 	"GymEventTracker/internal/database"
-	"GymEventTracker/internal/routes"
-	"os"
-	"os/signal"
-	"syscall"
-
+	"GymEventTracker/internal/features/events"
+	"GymEventTracker/internal/features/members"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,20 +16,8 @@ func main() {
 	e := echo.New()
 
 	// Setup routes
-	routes.SetupRoutes(e)
+	events.SetupRoutes(e)
+	members.RegisterRoutes(e)
 
-	// Graceful shutdown
-	go func() {
-		if err := e.Start(":3000"); err != nil {
-			e.Logger.Info("Shutting down the server...")
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit
-
-	if err := e.Shutdown(nil); err != nil {
-		e.Logger.Fatal(err)
-	}
+	e.Logger.Fatal(e.Start(":3000"))
 }
