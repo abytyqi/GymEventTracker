@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -37,6 +38,10 @@ func main() {
 
 	// Create a new Echo instance
 	e := echo.New()
+	// Add Logger middleware
+	e.Use(middleware.Logger())
+	e.Static("/plugins", "../plugins")
+	e.Static("/dist", "../dist")
 	parsedTemplates, err := template.ParseFiles("../internal/features/members/templates/index.html")
 
 	if err != nil {
@@ -49,6 +54,9 @@ func main() {
 
 	e.Renderer = t
 	// Setup routes
+
+	//http.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir("/GymEventTracker/plugins"))))
+
 	members.SetupRoutes(e)
 	attendance.SetupRoutes(e)
 
