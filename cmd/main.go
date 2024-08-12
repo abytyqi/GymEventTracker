@@ -4,9 +4,14 @@ import (
 	"GymEventTracker/internal/database"
 	"GymEventTracker/internal/features/attendance"
 	"GymEventTracker/internal/features/members"
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
 )
 
 type Template struct {
@@ -18,26 +23,42 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	dbPath := os.Getenv("DB_PATH")
+	serverPort := os.Getenv("SERVER_PORT")
+
 	// Initialize the SQLite database
-	database.InitDB("gym_event_tracker.db")
+	database.InitDB(dbPath)
 	defer database.CloseDB()
 
 	// Create a new Echo instance
 	e := echo.New()
+	// Add Logger middleware
+	e.Use(middleware.Logger())
+	e.Static("/plugins", "../plugins")
+	e.Static("/dist", "../dist")
+	parsedTemplates, err := template.ParseFiles("../internal/features/members/templates/index.html")
 
-
-	// Setup routes
-	events.SetupRoutes(e)
-	members.RegisterRoutes(e)
+	if err != nil {
+		log.Fatalf("Error parsing templates")
+	}
 
 	t := &Template{
-		templates: template.Must(template.ParseFiles("/Users/fitims/dev/GymEventTracker/internal/features/members/templates/index.html")),
+		templates: parsedTemplates,
 	}
 
 	e.Renderer = t
 	// Setup routes
+
+	//http.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir("/GymEventTracker/plugins"))))
+
 	members.SetupRoutes(e)
 	attendance.SetupRoutes(e)
 
-	e.Logger.Fatal(e.Start(":3000"))
+	e.Logger.Fatal(e.Start(serverPort))
 }
