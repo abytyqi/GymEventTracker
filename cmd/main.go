@@ -4,13 +4,13 @@ import (
 	"GymEventTracker/internal/database"
 	"GymEventTracker/internal/features/attendance"
 	"GymEventTracker/internal/features/members"
+	"github.com/labstack/echo/v4/middleware"
 	"html/template"
 	"io"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/v4"
 )
 
