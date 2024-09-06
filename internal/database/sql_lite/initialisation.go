@@ -1,4 +1,4 @@
-package database
+package sql_lite
 
 import (
 	"database/sql"
@@ -9,12 +9,12 @@ import (
 )
 
 // DB is the global database connection
-var DB *sql.DB
+var db *sql.DB
 
 // InitDB initializes the SQLite database
 func InitDB(filepath string) {
 	var err error
-	DB, err = sql.Open("sqlite3", filepath)
+	db, err = sql.Open("sqlite3", filepath)
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
@@ -27,7 +27,18 @@ func InitDB(filepath string) {
 		"joined_date" TEXT
 	);`
 
-	_, err = DB.Exec(createTableSQL)
+	createUserTableSQL := `CREATE TABLE IF NOT EXISTS users (
+		"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,		
+		"email" TEXT NOT NULL UNIQUE,
+		"password" TEXT NOT NULL
+	);`
+
+	_, err = db.Exec(createTableSQL)
+	if err != nil {
+		log.Fatalf("Error creating table: %v", err)
+	}
+
+	_, err = db.Exec(createUserTableSQL)
 	if err != nil {
 		log.Fatalf("Error creating table: %v", err)
 	}
@@ -37,7 +48,7 @@ func InitDB(filepath string) {
 
 // CloseDB closes the database connection
 func CloseDB() {
-	if DB != nil {
-		DB.Close()
+	if db != nil {
+		db.Close()
 	}
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"GymEventTracker/internal/database"
-	"GymEventTracker/internal/features/attendance"
+	"GymEventTracker/internal/database/sql_lite"
 	"GymEventTracker/internal/features/members"
+	"GymEventTracker/internal/features/users"
 	"html/template"
 	"io"
 	"log"
@@ -32,17 +32,18 @@ func main() {
 	serverPort := os.Getenv("SERVER_PORT")
 
 	// Initialize the SQLite database
-	database.InitDB(dbPath)
-	defer database.CloseDB()
+	sql_lite.InitDB(dbPath)
+	defer sql_lite.CloseDB()
 
 	// Create a new Echo instance
 	e := echo.New()
 	// Add Logger middleware
 	e.Static("/plugins", "../plugins")
 	e.Static("/dist", "../dist")
-	parsedTemplates, err := template.ParseFiles("../internal/features/members/templates/index.html")
+	parsedTemplates, err := template.ParseGlob("../internal/templates/*")
 
 	if err != nil {
+		log.Printf("%v", err)
 		log.Fatalf("Error parsing templates")
 	}
 
@@ -55,8 +56,11 @@ func main() {
 
 	//http.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir("/GymEventTracker/plugins"))))
 
-	members.SetupRoutes(e)
-	attendance.SetupRoutes(e)
+	mr := sql_lite.NewSqlLiteMemberRepo()
+	ur := sql_lite.NewSqlLiteUserRepo()
+
+	members.SetupRoutes(e, mr)
+	users.SetupRoutes(e, ur)
 
 	e.Logger.Fatal(e.Start(serverPort))
 }

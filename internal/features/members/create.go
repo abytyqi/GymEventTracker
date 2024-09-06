@@ -27,7 +27,7 @@ func createMember(repo database.MemberRepo) func(c echo.Context) error {
 			})
 		}
 
-		newMember.ID = int(id)
+		newMember.ID = id
 		return c.JSON(http.StatusCreated, newMember)
 	}
 }
